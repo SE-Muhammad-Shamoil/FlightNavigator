@@ -11,6 +11,11 @@ let isAdmin = false;
 let isDeleteMode = false;
 let tempCoords = null;
 
+// Variables for Dragging
+let isDragging = false;
+let startX, startY;
+let hasDragged = false; // To distinguish between a Click and a Drag
+
 // 2. Load Data
 function loadData() {
     // Americas
@@ -83,6 +88,36 @@ document.getElementById('btnMST').addEventListener('click', () => algo.run('mst'
 document.getElementById('btnZoomIn').addEventListener('click', () => ui.setZoom(0.2));
 document.getElementById('btnZoomOut').addEventListener('click', () => ui.setZoom(-0.2));
 
+// --- DRAG / PANNING LOGIC ---
+const canvas = document.getElementById('canvas');
+
+canvas.addEventListener('mousedown', (e) => {
+    // Only allow drag if NOT in admin mode
+    if (isAdmin) return;
+    isDragging = true;
+    hasDragged = false; // Reset drag status
+    startX = e.clientX;
+    startY = e.clientY;
+});
+
+window.addEventListener('mousemove', (e) => {
+    if (!isDragging) return;
+    const dx = e.clientX - startX;
+    const dy = e.clientY - startY;
+    
+    // If moved more than a few pixels, count it as a drag (not a click)
+    if (Math.abs(dx) > 2 || Math.abs(dy) > 2) hasDragged = true;
+
+    ui.setPan(dx, dy);
+    startX = e.clientX;
+    startY = e.clientY;
+});
+
+window.addEventListener('mouseup', () => {
+    isDragging = false;
+});
+
+
 function run(type) {
     const s = document.getElementById('sourceSelect').value;
     const d = document.getElementById('destSelect').value;
@@ -104,7 +139,6 @@ document.getElementById('adminToggle').addEventListener('click', () => {
         : '<i class="fa-solid fa-toolbox"></i> Admin Mode';
 });
 
-// Delete Mode Toggle
 document.getElementById('btnDeleteMode').addEventListener('click', () => {
     isDeleteMode = !isDeleteMode;
     updateDeleteModeUI();
@@ -123,7 +157,6 @@ function updateDeleteModeUI() {
 }
 
 function updateCursor() {
-    const canvas = document.getElementById('canvas');
     if (isDeleteMode) {
         canvas.classList.add('delete-cursor');
         canvas.classList.remove('admin-cursor');
@@ -135,10 +168,15 @@ function updateCursor() {
     }
 }
 
-// Map Click Handler
-document.getElementById('canvas').addEventListener('click', (e) => {
+// Map Click Handler (Add/Delete/Node Select)
+canvas.addEventListener('click', (e) => {
+    // 1. If we just dragged the map, ignore the click
+    if (hasDragged && !isAdmin) return;
+
+    // 2. If NOT Admin, we do nothing on click (user was just viewing)
     if (!isAdmin) return;
 
+    // 3. Admin Logic
     const nodeEl = e.target.closest('.node');
 
     if (nodeEl) {
@@ -153,13 +191,21 @@ document.getElementById('canvas').addEventListener('click', (e) => {
         return;
     }
 
+    // Add Node Logic
     if (!isDeleteMode) {
         const rect = document.getElementById('zoom-layer').getBoundingClientRect();
         const scale = ui.scale || 1; 
         
+        // Calculate coords relative to zoomed layer AND pan offset
+        // Since rect includes transform, we can just take relative click and divide by scale
+        // But we must subtract the current PAN values tracked in UI
+        
+        // Actually, easier way: 
+        // Logic: (Click - CanvasOffset - Pan) / Scale
+        const canvasRect = canvas.getBoundingClientRect();
         tempCoords = { 
-            x: (e.clientX - rect.left) / scale, 
-            y: (e.clientY - rect.top) / scale 
+            x: (e.clientX - canvasRect.left - ui.panX) / scale, 
+            y: (e.clientY - canvasRect.top - ui.panY) / scale 
         };
         document.getElementById('nodeModal').classList.remove('hidden');
     }
@@ -197,6 +243,6 @@ loadData();
 ui.renderGraph();
 ui.updateDropdowns();
 
-// --- SET DEFAULT PLACEHOLDERS ---
-document.getElementById('sourceSelect').value = 'ISB'; // Islamabad
-document.getElementById('destSelect').value = 'JFK'; // New York
+// Set Defaults
+document.getElementById('sourceSelect').value = 'ISB';
+document.getElementById('destSelect').value = 'JFK';

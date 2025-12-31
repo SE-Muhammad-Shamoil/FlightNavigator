@@ -2,36 +2,45 @@ export class UI {
     constructor(graph) {
         this.graph = graph;
         this.canvas = document.getElementById('canvas');
-        this.zoomLayer = document.getElementById('zoom-layer'); // New target for elements
+        this.zoomLayer = document.getElementById('zoom-layer'); 
         this.resStatus = document.getElementById('resStatus');
         this.resCost = document.getElementById('resCost');
         this.resTime = document.getElementById('resTime');
         this.resStops = document.getElementById('resStops');
         this.resPath = document.getElementById('resPath');
         
-        // Zoom State
+        // VIEW STATE
         this.scale = 1; 
+        this.panX = 0;
+        this.panY = 0;
     }
 
-    // New: Handle Zooming
+    // Helper to apply both Zoom and Pan
+    updateTransform() {
+        this.zoomLayer.style.transform = `translate(${this.panX}px, ${this.panY}px) scale(${this.scale})`;
+    }
+
     setZoom(change) {
         this.scale += change;
-        // Limit zoom levels (0.5x to 2.5x)
         if (this.scale < 0.5) this.scale = 0.5;
         if (this.scale > 2.5) this.scale = 2.5;
-        
-        this.zoomLayer.style.transform = `scale(${this.scale})`;
+        this.updateTransform();
+    }
+
+    // New: Pan the Map
+    setPan(dx, dy) {
+        this.panX += dx;
+        this.panY += dy;
+        this.updateTransform();
     }
 
     renderGraph() {
-        // Clear previous graph but keep the grid background
         this.zoomLayer.innerHTML = '<div class="grid-bg"></div>';
 
         // Draw Edges
         for (let u in this.graph.adjacencyList) {
             this.graph.adjacencyList[u].forEach(edge => {
                 const v = edge.node;
-                // Only draw if u < v to avoid duplicates in visual, but check existence of both nodes
                 if (u < v && this.graph.nodes[v]) {
                     this.drawEdge(u, v, this.graph.nodes[u], this.graph.nodes[v]);
                 }
@@ -47,10 +56,7 @@ export class UI {
             el.style.left = `${n.x}px`;
             el.style.top = `${n.y}px`;
             el.innerHTML = `<span>${id}</span><div class="node-label">${n.name}</div>`;
-            
-            // Add click listener data for delete logic in main.js
             el.dataset.id = id; 
-            
             this.zoomLayer.appendChild(el);
         }
     }
@@ -81,12 +87,9 @@ export class UI {
             ids.forEach(id => {
                 el.add(new Option(`${this.graph.nodes[id].name} (${id})`, id));
             });
-            // Try to restore old value if it still exists
             if (oldVal && this.graph.nodes[oldVal]) el.value = oldVal;
         });
     }
-
-    // --- Animations & Updates ---
 
     resetVisuals() {
         document.querySelectorAll('.node').forEach(n => n.classList.remove('visiting', 'path'));
@@ -111,7 +114,6 @@ export class UI {
     async animateEdgeMST(u, v) {
         let el = document.getElementById(`edge-${u}-${v}`);
         if (!el) el = document.getElementById(`edge-${v}-${u}`);
-        
         if (el) {
             el.classList.add('mst');
             await new Promise(r => setTimeout(r, 100));
