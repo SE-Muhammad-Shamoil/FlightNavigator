@@ -396,3 +396,13 @@ button.accent {
 {
     width:200%;
 }
+
+#adminControls{
+ border-radius: 40%;   
+}
+
+.admin-panel
+{
+    padding-top: 5%;
+    border-radius: 3%;
+}

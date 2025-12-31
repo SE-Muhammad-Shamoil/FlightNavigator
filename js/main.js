@@ -40,7 +40,6 @@ function loadData() {
     graph.addNode('DIK', 'D.I. Khan', 800, 300);
 
     // Asia/Pacific
-    graph.addNode('BOM', 'Mumbai', 870, 360);
     graph.addNode('SIN', 'Singapore', 980, 420);
     graph.addNode('HND', 'Tokyo', 1100, 280);
     graph.addNode('SYD', 'Sydney', 1150, 600);
