@@ -41,10 +41,10 @@
                 <i class="fa-solid fa-wand-magic-sparkles"></i> Smart A* Search
             </button>
             
-            <label>Network Analysis</label>
+            <br>
             <div class="btn-grid">
-                <button class="secondary" id="btnStops">Min Stops</button>
-                <button class="accent" id="btnMST"> <i class="fa-solid fa-share-nodes"></i> MST</button>
+                <button class="secondary" id="btnStops">Calculate</button>
+                <button class="accent hidden" id="btnMST"> <i class="fa-solid fa-share-nodes hidden"></i> MST</button>
             </div>
 
             <div class="results" id="resultsPanel">
@@ -62,10 +62,11 @@
 
         <div id="adminControls" class="hidden">
             <div class="admin-panel">
-                <h4><i class="fa-solid fa-trash"></i> Delete Node</h4>
+                <center>
                 <button class="accent" id="btnDeleteMode" style="margin-bottom:15px; background: #ef4444;">
                     <i class="fa-solid fa-ban"></i> Toggle Delete Mode: OFF
                 </button>
+            </center>
 
                 <h4>Add Route</h4>
                 <select id="adminSource"></select>
