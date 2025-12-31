@@ -16,6 +16,12 @@
         </div>
         
         <div id="userControls">
+            <label>Map View</label>
+            <div class="btn-grid">
+                <button class="secondary" id="btnZoomIn"><i class="fa-solid fa-magnifying-glass-plus"></i> Zoom In</button>
+                <button class="secondary" id="btnZoomOut"><i class="fa-solid fa-magnifying-glass-minus"></i> Zoom Out</button>
+            </div>
+
             <div class="control-group">
                 <label>From (Source)</label>
                 <select id="sourceSelect"></select>
@@ -38,7 +44,7 @@
             <label>Network Analysis</label>
             <div class="btn-grid">
                 <button class="secondary" id="btnStops">Min Stops</button>
-                <button class="accent" id="btnMST"> <i class="fa-solid fa-share-nodes"></i> MST (Connect All)</button>
+                <button class="accent" id="btnMST"> <i class="fa-solid fa-share-nodes"></i> MST</button>
             </div>
 
             <div class="results" id="resultsPanel">
@@ -46,26 +52,21 @@
                 <div class="stat-row"><span>Status:</span> <span id="resStatus">Ready</span></div>
                 <div class="stat-row"><span>Total Cost:</span> <span id="resCost">-</span></div>
                 <div class="stat-row"><span>Flight Time:</span> <span id="resTime">-</span></div>
-                <div class="stat-row"><span>Stops:</span> <span id="resStops">-</span></div>
                 <div class="path-display" id="resPath">Select route...</div>
             </div>
         </div>
 
-        <div class="dev-card">
-            <h4><i class="fa-solid fa-code"></i> Project Team</h4>
-            <ul class="dev-list">
-                <li><i class="fa-solid fa-user"></i> Muhammad Shamoil</li>
-                <li><i class="fa-solid fa-user"></i> Kashan Zafar</li>
-                <li><i class="fa-solid fa-user"></i> Muhamad Abdullah</li>
-            </ul>
-        </div>
-
-        <button id="adminToggle" class="secondary admin-btn">
+        <button id="adminToggle" class="secondary admin-btn" style="margin-top: 20px;">
             <i class="fa-solid fa-toolbox"></i> Admin Mode
         </button>
 
         <div id="adminControls" class="hidden">
             <div class="admin-panel">
+                <h4><i class="fa-solid fa-trash"></i> Delete Node</h4>
+                <button class="accent" id="btnDeleteMode" style="margin-bottom:15px; background: #ef4444;">
+                    <i class="fa-solid fa-ban"></i> Toggle Delete Mode: OFF
+                </button>
+
                 <h4>Add Route</h4>
                 <select id="adminSource"></select>
                 <select id="adminDest"></select>
@@ -74,14 +75,25 @@
                     <input type="number" id="newTime" placeholder="Time H">
                 </div>
                 <button class="primary" id="btnAddEdge">Add Link</button>
-                <small>*Click map to add City</small>
+                <small style="display:block; margin-top:5px; color:#94a3b8;">*Click map to add City</small>
             </div>
+        </div>
+
+        <div class="dev-card" style="margin-top: auto;">
+            <h4><i class="fa-solid fa-code"></i> Project Team</h4>
+            <ul class="dev-list">
+                <li><i class="fa-solid fa-user"></i> Muhammad Shamoil</li>
+                <li><i class="fa-solid fa-user"></i> Kashan Zafar</li>
+                <li><i class="fa-solid fa-user"></i> Muhamad Abdullah</li>
+            </ul>
         </div>
     </div>
 
     <div class="canvas-container" id="canvas">
-        <div class="grid-bg"></div>
+        <div id="zoom-layer">
+            <div class="grid-bg"></div>
         </div>
+    </div>
 
     <div id="nodeModal" class="modal hidden">
         <div class="modal-content">

@@ -1,4 +1,3 @@
-// js/main.js
 import { FlightGraph } from './Graph.js';
 import { Algorithms } from './Algorithms.js';
 import { UI } from './UI.js';
@@ -7,40 +6,41 @@ import { UI } from './UI.js';
 const graph = new FlightGraph();
 const ui = new UI(graph);
 const algo = new Algorithms(graph, ui);
+
 let isAdmin = false;
+let isDeleteMode = false;
 let tempCoords = null;
 
 // 2. Load Data
 function loadData() {
-    // --- AMERICAS ---
+    // Americas
     graph.addNode('JFK', 'New York', 320, 280);
     graph.addNode('LAX', 'Los Angeles', 150, 310);
     graph.addNode('ORD', 'Chicago', 260, 260);
     graph.addNode('MIA', 'Miami', 300, 360);
     graph.addNode('GRU', 'Sao Paulo', 400, 580);
     
-    // --- EUROPE / AFRICA ---
+    // Europe/Africa
     graph.addNode('LHR', 'London', 580, 210);
     graph.addNode('CDG', 'Paris', 600, 240);
     graph.addNode('FRA', 'Frankfurt', 630, 220);
     graph.addNode('MAD', 'Madrid', 570, 270);
-    graph.addNode('DXB', 'Dubai', 750, 320); // Moved slightly left to fit PK
+    graph.addNode('DXB', 'Dubai', 750, 320);
     
-    // --- PAKISTAN REGION (New) ---
-    // Placed between Dubai (750,320) and Mumbai (850,350)
+    // Pakistan
     graph.addNode('KHI', 'Karachi', 790, 345);
     graph.addNode('LHE', 'Lahore', 830, 295);
     graph.addNode('ISB', 'Islamabad', 820, 275);
     graph.addNode('PEW', 'Peshawar', 805, 265);
     graph.addNode('DIK', 'D.I. Khan', 800, 300);
 
-    // --- ASIA / PACIFIC ---
+    // Asia/Pacific
     graph.addNode('BOM', 'Mumbai', 870, 360);
     graph.addNode('SIN', 'Singapore', 980, 420);
     graph.addNode('HND', 'Tokyo', 1100, 280);
     graph.addNode('SYD', 'Sydney', 1150, 600);
 
-    // --- INTERNATIONAL ROUTES ---
+    // Routes
     graph.addBiDirectionalEdge('JFK', 'LHR', 600, 7);
     graph.addBiDirectionalEdge('JFK', 'LAX', 300, 5.5);
     graph.addBiDirectionalEdge('LAX', 'HND', 900, 10);
@@ -58,22 +58,16 @@ function loadData() {
     graph.addBiDirectionalEdge('SIN', 'SYD', 600, 8);
     graph.addBiDirectionalEdge('SIN', 'HND', 550, 6.5);
     
-    // --- ASIAN CONNECTIVITY ---
-    // Connecting Pakistan to the World via Dubai & Mumbai
-    graph.addBiDirectionalEdge('DXB', 'KHI', 150, 2);   // Dubai -> Karachi
-    graph.addBiDirectionalEdge('DXB', 'ISB', 200, 3);   // Dubai -> Islamabad
-    graph.addBiDirectionalEdge('KHI', 'BOM', 180, 1.5); // Karachi -> Mumbai
-    graph.addBiDirectionalEdge('BOM', 'SIN', 350, 4.5); 
-
-    // --- DOMESTIC PAKISTAN ROUTES ---
-    // KHI is the hub
+    // PK Routes
+    graph.addBiDirectionalEdge('DXB', 'KHI', 150, 2);
+    graph.addBiDirectionalEdge('DXB', 'ISB', 200, 3);
+    graph.addBiDirectionalEdge('KHI', 'BOM', 180, 1.5);
+    graph.addBiDirectionalEdge('BOM', 'SIN', 350, 4.5);
     graph.addBiDirectionalEdge('KHI', 'LHE', 100, 2);
     graph.addBiDirectionalEdge('KHI', 'ISB', 120, 2);
     graph.addBiDirectionalEdge('KHI', 'DIK', 90, 1.5);
-    
-    // Northern Connectivity
-    graph.addBiDirectionalEdge('LHE', 'ISB', 50, 0.8);  // Short flight
-    graph.addBiDirectionalEdge('ISB', 'PEW', 40, 0.5);  // Very short
+    graph.addBiDirectionalEdge('LHE', 'ISB', 50, 0.8);
+    graph.addBiDirectionalEdge('ISB', 'PEW', 40, 0.5);
     graph.addBiDirectionalEdge('PEW', 'DIK', 45, 0.8);
     graph.addBiDirectionalEdge('DIK', 'ISB', 60, 0.8);
 }
@@ -85,6 +79,10 @@ document.getElementById('btnAstar').addEventListener('click', () => run('astar')
 document.getElementById('btnStops').addEventListener('click', () => run('stops'));
 document.getElementById('btnMST').addEventListener('click', () => algo.run('mst'));
 
+// Zoom Listeners
+document.getElementById('btnZoomIn').addEventListener('click', () => ui.setZoom(0.2));
+document.getElementById('btnZoomOut').addEventListener('click', () => ui.setZoom(-0.2));
+
 function run(type) {
     const s = document.getElementById('sourceSelect').value;
     const d = document.getElementById('destSelect').value;
@@ -92,21 +90,79 @@ function run(type) {
     else alert("Please select different Source and Destination.");
 }
 
-// Admin Features
+// Admin Toggle
 document.getElementById('adminToggle').addEventListener('click', () => {
     isAdmin = !isAdmin;
+    if(!isAdmin) {
+        isDeleteMode = false;
+        updateDeleteModeUI();
+    }
     document.getElementById('adminControls').classList.toggle('hidden');
-    document.getElementById('canvas').style.cursor = isAdmin ? 'crosshair' : 'grab';
+    updateCursor();
     document.getElementById('adminToggle').innerHTML = isAdmin 
         ? '<i class="fa-solid fa-times"></i> Close Admin' 
         : '<i class="fa-solid fa-toolbox"></i> Admin Mode';
 });
 
+// Delete Mode Toggle
+document.getElementById('btnDeleteMode').addEventListener('click', () => {
+    isDeleteMode = !isDeleteMode;
+    updateDeleteModeUI();
+    updateCursor();
+});
+
+function updateDeleteModeUI() {
+    const btn = document.getElementById('btnDeleteMode');
+    if (isDeleteMode) {
+        btn.innerHTML = '<i class="fa-solid fa-ban"></i> Toggle Delete Mode: ON';
+        btn.style.boxShadow = "0 0 10px red";
+    } else {
+        btn.innerHTML = '<i class="fa-solid fa-ban"></i> Toggle Delete Mode: OFF';
+        btn.style.boxShadow = "none";
+    }
+}
+
+function updateCursor() {
+    const canvas = document.getElementById('canvas');
+    if (isDeleteMode) {
+        canvas.classList.add('delete-cursor');
+        canvas.classList.remove('admin-cursor');
+    } else if (isAdmin) {
+        canvas.classList.add('admin-cursor');
+        canvas.classList.remove('delete-cursor');
+    } else {
+        canvas.classList.remove('admin-cursor', 'delete-cursor');
+    }
+}
+
+// Map Click Handler
 document.getElementById('canvas').addEventListener('click', (e) => {
-    if (!isAdmin || e.target.closest('.node')) return;
-    const rect = document.getElementById('canvas').getBoundingClientRect();
-    tempCoords = { x: e.clientX - rect.left, y: e.clientY - rect.top };
-    document.getElementById('nodeModal').classList.remove('hidden');
+    if (!isAdmin) return;
+
+    const nodeEl = e.target.closest('.node');
+
+    if (nodeEl) {
+        if (isDeleteMode) {
+            const id = nodeEl.dataset.id;
+            if (confirm(`Delete airport ${id}?`)) {
+                graph.removeNode(id);
+                ui.renderGraph();
+                ui.updateDropdowns();
+            }
+        }
+        return;
+    }
+
+    if (!isDeleteMode) {
+        const rect = document.getElementById('zoom-layer').getBoundingClientRect();
+        const scale = ui.scale || 1; 
+        
+        tempCoords = { 
+            x: (e.clientX - rect.left) / scale, 
+            y: (e.clientY - rect.top) / scale 
+        };
+        document.getElementById('nodeModal').classList.remove('hidden');
+    }
 });
 
 document.getElementById('btnConfirmNode').addEventListener('click', () => {
@@ -140,3 +196,7 @@ document.getElementById('btnAddEdge').addEventListener('click', () => {
 loadData();
 ui.renderGraph();
 ui.updateDropdowns();
+
+// --- SET DEFAULT PLACEHOLDERS ---
+document.getElementById('sourceSelect').value = 'ISB'; // Islamabad
+document.getElementById('destSelect').value = 'JFK'; // New York

@@ -1,25 +1,40 @@
-// js/UI.js
-
 export class UI {
     constructor(graph) {
         this.graph = graph;
         this.canvas = document.getElementById('canvas');
+        this.zoomLayer = document.getElementById('zoom-layer'); // New target for elements
         this.resStatus = document.getElementById('resStatus');
         this.resCost = document.getElementById('resCost');
         this.resTime = document.getElementById('resTime');
         this.resStops = document.getElementById('resStops');
         this.resPath = document.getElementById('resPath');
+        
+        // Zoom State
+        this.scale = 1; 
+    }
+
+    // New: Handle Zooming
+    setZoom(change) {
+        this.scale += change;
+        // Limit zoom levels (0.5x to 2.5x)
+        if (this.scale < 0.5) this.scale = 0.5;
+        if (this.scale > 2.5) this.scale = 2.5;
+        
+        this.zoomLayer.style.transform = `scale(${this.scale})`;
     }
 
     renderGraph() {
-        // Keep grid background, clear nodes/edges
-        this.canvas.innerHTML = '<div class="grid-bg"></div>';
+        // Clear previous graph but keep the grid background
+        this.zoomLayer.innerHTML = '<div class="grid-bg"></div>';
 
         // Draw Edges
         for (let u in this.graph.adjacencyList) {
             this.graph.adjacencyList[u].forEach(edge => {
                 const v = edge.node;
-                if (u < v) this.drawEdge(u, v, this.graph.nodes[u], this.graph.nodes[v]);
+                // Only draw if u < v to avoid duplicates in visual, but check existence of both nodes
+                if (u < v && this.graph.nodes[v]) {
+                    this.drawEdge(u, v, this.graph.nodes[u], this.graph.nodes[v]);
+                }
             });
         }
 
@@ -32,7 +47,11 @@ export class UI {
             el.style.left = `${n.x}px`;
             el.style.top = `${n.y}px`;
             el.innerHTML = `<span>${id}</span><div class="node-label">${n.name}</div>`;
-            this.canvas.appendChild(el);
+            
+            // Add click listener data for delete logic in main.js
+            el.dataset.id = id; 
+            
+            this.zoomLayer.appendChild(el);
         }
     }
 
@@ -43,7 +62,6 @@ export class UI {
         const line = document.createElement('div');
         line.className = 'edge';
         line.id = `edge-${u}-${v}`;
-        // Store bidirectional IDs for easy lookup
         line.dataset.u = u;
         line.dataset.v = v;
         
@@ -51,7 +69,7 @@ export class UI {
         line.style.left = `${src.x}px`;
         line.style.top = `${src.y}px`;
         line.style.transform = `rotate(${angle}deg)`;
-        this.canvas.appendChild(line);
+        this.zoomLayer.appendChild(line);
     }
 
     updateDropdowns() {
@@ -63,6 +81,7 @@ export class UI {
             ids.forEach(id => {
                 el.add(new Option(`${this.graph.nodes[id].name} (${id})`, id));
             });
+            // Try to restore old value if it still exists
             if (oldVal && this.graph.nodes[oldVal]) el.value = oldVal;
         });
     }
@@ -78,7 +97,6 @@ export class UI {
         this.resStatus.innerText = "Processing...";
         this.resCost.innerText = "-";
         this.resTime.innerText = "-";
-        this.resStops.innerText = "-";
         this.resPath.innerText = "Calculating...";
     }
 
@@ -91,7 +109,6 @@ export class UI {
     }
 
     async animateEdgeMST(u, v) {
-        // Try finding edge u-v or v-u
         let el = document.getElementById(`edge-${u}-${v}`);
         if (!el) el = document.getElementById(`edge-${v}-${u}`);
         
@@ -115,7 +132,6 @@ export class UI {
         this.resStatus.innerText = "Route Found!";
         this.resCost.innerText = `$${cost}`;
         this.resTime.innerText = typeof time === 'number' ? `${time.toFixed(1)}h` : time;
-        this.resStops.innerText = stops;
         this.resPath.innerText = pathStr;
     }
     
