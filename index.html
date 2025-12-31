@@ -3,17 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flight Path Simulator Pro</title>
+    <title>Flight Navigator Simulator - DAA Project</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
     <div class="sidebar">
-        <div class="header-group">
-            <h2>✈️ FlightSim Pro</h2>
-            <button id="adminToggle" class="toggle-btn" onclick="toggleAdminMode()">
-                Admin Mode: OFF
-            </button>
+        <div class="brand">
+            <h2><i class="fa-solid fa-plane-circle-check"></i> Flight Nav.</h2>
+            <span>A DAA PROJECT</span>
         </div>
         
         <div id="userControls">
@@ -27,63 +26,75 @@
                 <select id="destSelect"></select>
             </div>
 
-            <div class="action-buttons">
-                <button class="primary" onclick="runAlgorithm('cost')">Cheapest ($)</button>
-                <button class="primary" onclick="runAlgorithm('time')">Fastest (Time)</button>
-                <button class="primary" onclick="runAlgorithm('stops')">Min Stops</button>
+            <label>Navigation Algorithms</label>
+            <div class="btn-grid">
+                <button class="primary" id="btnCost"><i class="fa-solid fa-money-bill-wave"></i> Cheapest</button>
+                <button class="primary" id="btnTime"><i class="fa-solid fa-clock"></i> Fastest</button>
+            </div>
+            <button class="primary astar-btn" id="btnAstar">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> Smart A* Search
+            </button>
+            
+            <label>Network Analysis</label>
+            <div class="btn-grid">
+                <button class="secondary" id="btnStops">Min Stops</button>
+                <button class="accent" id="btnMST"> <i class="fa-solid fa-share-nodes"></i> MST (Connect All)</button>
             </div>
 
             <div class="results" id="resultsPanel">
-                <h3>Trip Details</h3>
+                <div class="res-title">TRIP METRICS</div>
                 <div class="stat-row"><span>Status:</span> <span id="resStatus">Ready</span></div>
-                <div class="stat-row"><span>Cost:</span> <span id="resCost">-</span></div>
-                <div class="stat-row"><span>Time:</span> <span id="resTime">-</span></div>
+                <div class="stat-row"><span>Total Cost:</span> <span id="resCost">-</span></div>
+                <div class="stat-row"><span>Flight Time:</span> <span id="resTime">-</span></div>
                 <div class="stat-row"><span>Stops:</span> <span id="resStops">-</span></div>
                 <div class="path-display" id="resPath">Select route...</div>
             </div>
         </div>
 
+        <div class="dev-card">
+            <h4><i class="fa-solid fa-code"></i> Project Team</h4>
+            <ul class="dev-list">
+                <li><i class="fa-solid fa-user"></i> Muhammad Shamoil</li>
+                <li><i class="fa-solid fa-user"></i> Kashan Zafar</li>
+                <li><i class="fa-solid fa-user"></i> Muhamad Abdullah</li>
+            </ul>
+        </div>
+
+        <button id="adminToggle" class="secondary admin-btn">
+            <i class="fa-solid fa-toolbox"></i> Admin Mode
+        </button>
+
         <div id="adminControls" class="hidden">
             <div class="admin-panel">
-                <h3>🛠️ Admin Tools</h3>
-                <p class="hint">Click anywhere on the map to place a new Airport.</p>
-                
-                <hr>
-                
-                <h4>Add Flight Route</h4>
+                <h4>Add Route</h4>
                 <select id="adminSource"></select>
-                <div class="arrow">⬇️</div>
                 <select id="adminDest"></select>
-                
                 <div class="input-row">
-                    <input type="number" id="newCost" placeholder="Cost ($)">
-                    <input type="number" id="newTime" placeholder="Time (h)">
+                    <input type="number" id="newCost" placeholder="Cost $">
+                    <input type="number" id="newTime" placeholder="Time H">
                 </div>
-                <button class="success" onclick="addCustomEdge()">+ Add Flight</button>
+                <button class="primary" id="btnAddEdge">Add Link</button>
+                <small>*Click map to add City</small>
             </div>
         </div>
     </div>
 
     <div class="canvas-container" id="canvas">
-        <div class="legend">
-            <div class="legend-item"><div class="dot" style="background:var(--node-bg)"></div> Airport</div>
-            <div class="legend-item"><div class="dot" style="background:var(--highlight-check)"></div> Scanning</div>
-            <div class="legend-item"><div class="dot" style="background:var(--highlight-path)"></div> Best Route</div>
+        <div class="grid-bg"></div>
         </div>
-    </div>
 
     <div id="nodeModal" class="modal hidden">
         <div class="modal-content">
             <h3>New Airport</h3>
-            <input type="text" id="newCode" placeholder="Code (e.g. LAX)" maxlength="3" style="text-transform:uppercase">
+            <input type="text" id="newCode" placeholder="Code (e.g. LHR)" maxlength="3">
             <input type="text" id="newName" placeholder="City Name">
             <div class="modal-actions">
-                <button onclick="cancelNodeAdd()">Cancel</button>
-                <button class="success" onclick="confirmNodeAdd()">Create</button>
+                <button class="secondary" id="btnCancelNode">Cancel</button>
+                <button class="primary" id="btnConfirmNode">Create Airport</button>
             </div>
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <script type="module" src="js/main.js"></script>
 </body>
 </html>
