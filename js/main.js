@@ -132,6 +132,8 @@ document.getElementById('adminToggle').addEventListener('click', () => {
         updateDeleteModeUI();
     }
     document.getElementById('adminControls').classList.toggle('hidden');
+    document.getElementById('userControls').classList.toggle('hidden');
+
     updateCursor();
     document.getElementById('adminToggle').innerHTML = isAdmin 
         ? '<i class="fa-solid fa-times"></i> Close Admin' 

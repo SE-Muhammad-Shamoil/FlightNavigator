@@ -64,26 +64,27 @@
 
         <div id="adminControls" class="hidden">
             <div class="admin-panel">
-                <center>
-                <button class="accent" id="btnDeleteMode" style="margin-bottom:15px; background: #ef4444;">
-                    <i class="fa-solid fa-ban"></i> Toggle Delete Mode: OFF
-                </button>
-            </center>
-
-                <h4>Add Route</h4>
+                
+                <center><h4>Add Route</h4></center>
                 <select id="adminSource"></select>
                 <select id="adminDest"></select>
                 <div class="input-row">
                     <input type="number" id="newCost" placeholder="Cost $">
                     <input type="number" id="newTime" placeholder="Time H">
                 </div>
+                <br>
                 <center>
                 <button class="primary" id="btnAddEdge">Add Link</button>
-                <small style="display:block; margin-top:5px; color:#94a3b8;">*Click map to add City</small>
-                <br>
-            </center>
+                </center>
             </div>
+            <br><br>
+            <center>
+                <button class="accent" id="btnDeleteMode" style="margin-bottom:15px; background: #ef4444;">
+                    <i class="fa-solid fa-ban"></i> Toggle Delete Mode: OFF
+                </button>
+            </center>
         </div>
+        
     </div>
 
     <div class="canvas-container" id="canvas">
