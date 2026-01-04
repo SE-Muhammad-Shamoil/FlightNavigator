@@ -132,7 +132,7 @@ document.getElementById('adminToggle').addEventListener('click', () => {
         updateDeleteModeUI();
     }
     document.getElementById('adminControls').classList.toggle('hidden');
-    document.getElementById('userControls').classList.toggle('hidden');
+    // document.getElementById('userControls').classList.toggle('hidden');
 
     updateCursor();
     document.getElementById('adminToggle').innerHTML = isAdmin 
@@ -229,6 +229,7 @@ document.getElementById('btnCancelNode').addEventListener('click', () => {
 });
 
 document.getElementById('btnAddEdge').addEventListener('click', () => {
+    console.log("Adding Edge");
     const u = document.getElementById('adminSource').value;
     const v = document.getElementById('adminDest').value;
     const c = parseInt(document.getElementById('newCost').value);
