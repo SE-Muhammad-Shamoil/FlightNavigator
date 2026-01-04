@@ -201,8 +201,7 @@ canvas.addEventListener('click', (e) => {
         // Since rect includes transform, we can just take relative click and divide by scale
         // But we must subtract the current PAN values tracked in UI
         
-        // Actually, easier way: 
-        // Logic: (Click - CanvasOffset - Pan) / Scale
+
         const canvasRect = canvas.getBoundingClientRect();
         tempCoords = { 
             x: (e.clientX - canvasRect.left - ui.panX) / scale, 
